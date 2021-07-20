@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+From 2658c38f1f273976f2344021368fc5d2c2c195c7 Mon Sep 17 00:00:00 2001
+From: dgcampea <dgcampea@outlook.com>
+Date: Mon, 19 Jul 2021 22:36:47 +0100
+Subject: [PATCH 1/2] AudioFormat: Hide AudioFormat if nothing is playing
+
+---
+ bin/mpdevil | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/bin/mpdevil b/bin/mpdevil
+index 808fda3..cae9fc1 100755
+--- a/bin/mpdevil
++++ b/bin/mpdevil
+@@ -3364,9 +3364,12 @@ class AudioFormat(Gtk.Box):
+ 		self._format_label=Gtk.Label()
+ 		self.set_property("no-show-all", not(self._settings.get_boolean("show-audio-format")))
+ 
++		self._audio_state=""
++
+ 		# connect
+ 		self._settings.connect("notify::mini-player", self._on_mini_player)
+ 		self._settings.connect("changed::show-audio-format", self._on_show_audio_format_changed)
++		self._client.emitter.connect("state", self._on_state_change)
+ 		self._client.emitter.connect("audio", self._on_audio)
+ 		self._client.emitter.connect("bitrate", self._on_bitrate)
+ 		self._client.emitter.connect("current_song_changed", self._on_song_changed)
+@@ -3409,10 +3412,14 @@ class AudioFormat(Gtk.Box):
+ 	def _on_mini_player(self, obj, typestring):
+ 		self._on_show_audio_format_changed()
+ 
++	def _on_state_change(self, emitter, state):
++		self._audio_state=state
++		self._on_show_audio_format_changed()
++
+ 	def _on_show_audio_format_changed(self, *args):
+ 		visibility=(self._settings.get_boolean("show-audio-format") and not self._settings.get_property("mini-player"))
+ 		self.set_property("no-show-all", not(visibility))
+-		if visibility:
++		if visibility and self._audio_state in {'pause', 'play'}:
+ 			self.show_all()
+ 		else:
+ 			self.hide()
+-- 
+2.31.1

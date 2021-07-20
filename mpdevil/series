@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# AudioFormat UX changes
+# From https://github.com/SoongNoonien/mpdevil/pull/35
+# Status: rejected by upstream
+
+0001-AudioFormat-Hide-AudioFormat-if-nothing-is-playing.patch
+0002-AudioFormat-Set-bitrate-to-kb-s-if-playback-is-pause.patch
