@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-From f090fc38f725d2078a2a997021706d324d942875 Mon Sep 17 00:00:00 2001
-From: dgcampea <dgcampea@outlook.com>
-Date: Tue, 20 Jul 2021 02:37:50 +0100
 Subject: [PATCH 2/2] AudioFormat: Set bitrate to "-- kb/s" if playback is
  paused
 
@@ -10,18 +7,43 @@ Subject: [PATCH 2/2] AudioFormat: Set bitrate to "-- kb/s" if playback is
  bin/mpdevil | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/bin/mpdevil b/bin/mpdevil
-index cae9fc1..21c0f51 100755
---- a/bin/mpdevil
-+++ b/bin/mpdevil
-@@ -3414,6 +3414,8 @@ class AudioFormat(Gtk.Box):
+Index: mpdevil/bin/mpdevil
+===================================================================
+--- mpdevil.orig/bin/mpdevil
++++ mpdevil/bin/mpdevil
+@@ -3369,6 +3369,7 @@ class AudioFormat(Gtk.Box):
+ 		self.set_property("no-show-all", not(self._settings.get_boolean("show-audio-format")))
+ 
+ 		self._audio_state=""
++		self._last_brate=""  # required for CBR files since events are emitted on value change
+ 
+ 		# connect
+ 		self._settings.connect("notify::mini-player", self._on_mini_player)
+@@ -3404,6 +3405,7 @@ class AudioFormat(Gtk.Box):
+ 			self._brate_label.set_text("–")
+ 		else:
+ 			self._brate_label.set_text(brate)
++			self._last_brate=brate
+ 
+ 	def _on_song_changed(self, *args):
+ 		current_song=self._client.currentsong()
+@@ -3421,6 +3423,10 @@ class AudioFormat(Gtk.Box):
  
  	def _on_state_change(self, emitter, state):
  		self._audio_state=state
 +		if state == 'pause':
-+			self._brate_label.set_text("-- kb/s • ")
++			self._brate_label.set_text("–")
++		else:
++			self._brate_label.set_text(self._last_brate)
  		self._on_show_audio_format_changed()
  
  	def _on_show_audio_format_changed(self, *args):
--- 
-2.31.1
+@@ -3440,6 +3446,8 @@ class AudioFormat(Gtk.Box):
+ 
+ 	def _on_reconnected(self, *args):
+ 		self.set_sensitive(True)
++		if state == 'pause':
++			self._brate_label.set_text("–")
+ 
+ class PlaybackOptions(Gtk.ButtonBox):
+ 	def __init__(self, client, settings):
