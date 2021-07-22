@@ -11,7 +11,7 @@ Index: mpdevil/bin/mpdevil
 ===================================================================
 --- mpdevil.orig/bin/mpdevil
 +++ mpdevil/bin/mpdevil
-@@ -3369,6 +3369,7 @@ class AudioFormat(Gtk.Box):
+@@ -3373,6 +3373,7 @@ class AudioFormat(Gtk.Box):
  		self.set_property("no-show-all", not(self._settings.get_boolean("show-audio-format")))
  
  		self._audio_state=""
@@ -19,15 +19,18 @@ Index: mpdevil/bin/mpdevil
  
  		# connect
  		self._settings.connect("notify::mini-player", self._on_mini_player)
-@@ -3404,6 +3405,7 @@ class AudioFormat(Gtk.Box):
+@@ -3406,8 +3407,10 @@ class AudioFormat(Gtk.Box):
+ 		# handle unknown bitrates: https://github.com/MusicPlayerDaemon/MPD/issues/428#issuecomment-442430365
+ 		if brate is None:
  			self._brate_label.set_text("–")
++			self._last_brate="–"
  		else:
  			self._brate_label.set_text(brate)
 +			self._last_brate=brate
  
  	def _on_song_changed(self, *args):
  		current_song=self._client.currentsong()
-@@ -3421,6 +3423,10 @@ class AudioFormat(Gtk.Box):
+@@ -3425,6 +3428,10 @@ class AudioFormat(Gtk.Box):
  
  	def _on_state_change(self, emitter, state):
  		self._audio_state=state
@@ -38,7 +41,7 @@ Index: mpdevil/bin/mpdevil
  		self._on_show_audio_format_changed()
  
  	def _on_show_audio_format_changed(self, *args):
-@@ -3440,6 +3446,8 @@ class AudioFormat(Gtk.Box):
+@@ -3444,6 +3451,8 @@ class AudioFormat(Gtk.Box):
  
  	def _on_reconnected(self, *args):
  		self.set_sensitive(True)
